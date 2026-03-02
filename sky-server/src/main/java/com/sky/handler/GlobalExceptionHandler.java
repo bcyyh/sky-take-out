@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     /**
      * 处理sql异常
      */
-    @ExceptionHandler
+    @ExceptionHandler //注解的作用是处理异常
     public Result SQLIntegrityConstraintViolationException (SQLIntegrityConstraintViolationException ex){
         if (ex.getMessage().contains("Duplicate entry")) {
             String[] split = ex.getMessage().split(" ");

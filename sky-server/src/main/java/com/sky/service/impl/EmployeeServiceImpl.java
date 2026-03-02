@@ -49,7 +49,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new AccountNotFoundException(MessageConstant.ACCOUNT_NOT_FOUND);
         }
 
-        //密码比对 对前端 传来的秘密进行md5
+        //密码比对 对前端 传来的秘密进行md5加密处理
 
         password = DigestUtils.md5DigestAsHex(password.getBytes());
         if (!password.equals(employee.getPassword())) {
@@ -72,14 +72,15 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public void save(EmployeeDTO employeeDTO) {
+        //DTO是为了分装前端提交过来的数据 持久层建议使用实体类 数据有两个方向
         System.out.println(("当前线程id" + Thread.currentThread().getId()));
 
         Employee employee = new Employee();
 
         // 对象属性拷贝
-        BeanUtils.copyProperties(employeeDTO, employee); //从前拷贝到后面
+        BeanUtils.copyProperties(employeeDTO, employee); //从前拷贝到后面、前提是属性名一致
 
-        // 设置账号状态，1表示正常状态
+        // 设置账号状态，1表示正常状态 定义常量类容易维护
         employee.setStatus(StatusConstant.ENABLE);
         // 设置密码，使用md5进行加密，md5("123456") = d41d8cd98f00b204e9800998ecf8427e
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));

@@ -1,6 +1,8 @@
 **/target/
+#存放的为Class文件可以忽略
 .idea
 *.iml
+#IDEA项目文件
 *.class
 *Test.java
 **/test/

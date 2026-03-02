@@ -83,11 +83,14 @@ public class EmployeeController {
      * @return
      */
     //因为是JSON格式数据需要加@RequestBody  请求方式为post 需要加入容器
+    //简单来说就是 请把前端发来的 JSON 数据，自动转换成我定义的这个 Java 对象
+    //不要去 URL 链接里找数据，去 HTTP 请求的 Body（主体） 里找
     @PostMapping
     @ApiOperation("新增员工")
+    //统一使用Result 来封装 数据 打算使用DTO来接受数据 DTO属性对应前端的body
     public Result save(@RequestBody EmployeeDTO employeeDTO){
-        log.info("新增员工，员工数据：{}",employeeDTO);
-        employeeService.save(employeeDTO);
+        log.info("新增员工，员工数据：{}",employeeDTO); //花括号为占位符 可以把后面动态的拼到前面去
+        employeeService.save(employeeDTO);  //此时把 对象放入save中
         return Result.success();
     }
     //数据封装的类型为PageResult 参数为前端提供的数据 Query

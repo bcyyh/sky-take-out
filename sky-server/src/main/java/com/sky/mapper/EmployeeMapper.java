@@ -19,7 +19,7 @@ public interface EmployeeMapper {
     Employee getByUsername(String username);
 
     /**
-     * 插入员工数据
+     * 插入员工数据 单表的新增操作 插入数据库
      * @param employee
      */
     @Insert("INSERT INTO employee (name, username, password, phone, sex, id_number, status, create_time, update_time, create_user, update_user) " +
