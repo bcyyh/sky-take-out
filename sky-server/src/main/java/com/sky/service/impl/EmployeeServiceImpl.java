@@ -74,7 +74,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void save(EmployeeDTO employeeDTO) {
         //DTO是为了分装前端提交过来的数据 持久层建议使用实体类 数据有两个方向
         System.out.println(("当前线程id" + Thread.currentThread().getId()));
-
+        //1
         Employee employee = new Employee();
 
         // 对象属性拷贝
