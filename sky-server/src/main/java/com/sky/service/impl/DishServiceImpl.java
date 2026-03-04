@@ -153,4 +153,35 @@ public class DishServiceImpl implements DishService {
             dishFlavorMapper.insertBatch(flavors);
         };
     }
+
+    /**
+     * 菜品起售停售
+     * @param status
+     * @param id
+     */
+
+    // TODO 菜品和套餐进行捆绑 菜品停售 套餐要先下架 写完套餐后更新
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Dish dish = Dish.builder()
+                .id(id)
+                .status(status)
+                .build();
+                dishMapper.update(dish);
+    }
+
+    /**
+     * 根据分类id查询菜品
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public List<DishVO> list(Long categoryId) {
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .status(1) // 关键：只查询起售中的菜品
+                .build();
+
+        return dishMapper.list(dish); // 传入封装好的对象
+    }
 }

@@ -90,4 +90,28 @@ public class DishController {
         return Result.success();
     }
 
+
+    /**
+     * 菜品起售停售 Path： /admin/dish/status/{status}
+     */
+    @ApiOperation("菜品起售停售")
+    @PostMapping("/status/{status}")  //一个动作的更新用 POST
+    public Result startOrStop(@PathVariable Integer status, Long id){
+        //url中有路径参数 故此处用@PathVariabl
+        log.info("菜品起售停售：{}", id);
+        dishService.startOrStop(status, id);  //状态码 菜品id是必须的必须知道菜品才可以进行状态的修改
+        return Result.success();
+    }
+
+    /**
+     * 根据分类id查询菜品
+     */
+    @GetMapping("/list")
+    @ApiOperation("根据分类id查询菜品")
+    public Result<List<DishVO>> list(Long categoryId){
+        log.info("根据分类id查询菜品：{}", categoryId);
+        List<DishVO> list = dishService.list(categoryId);
+        return Result.success(list);
+    }
+
 }
