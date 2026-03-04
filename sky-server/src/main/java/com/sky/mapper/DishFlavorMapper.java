@@ -3,6 +3,7 @@ package com.sky.mapper;
 import com.sky.entity.DishFlavor;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -28,4 +29,8 @@ public interface DishFlavorMapper {
      * @param dishIds
      */
     void deleteByDishIds(List<Long> dishIds); //XML 里的 collection 名字和 Java 接口里的 形参名 对上。
+
+    @Select("select * from dish_flavor where dish_id = #{dishId}")
+    //#{dishId} Java 变量的名 和 SQL 语句里的变量名 对上 才可以进行捆绑赋值
+    List<DishFlavor> getByDishId(Long dishId);
 }

@@ -5,6 +5,7 @@ import com.sky.dto.DishPageQueryDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
+import com.sky.vo.DishVO;
 import io.swagger.annotations.ApiOperation;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -62,4 +63,31 @@ public class DishController {
         dishService.deleteBatch(ids);
         return Result.success();
     }
+
+    /**
+     * 根据id查询菜品
+     */
+
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询菜品")
+    public Result<DishVO> getById(@PathVariable Long id){
+        //此处用的是DishVo因为 里面还需要有口味的相关数据 DishVo中有口味的集合
+        log.info("根据id查询菜品：{}", id);
+        DishVO dishVO = dishService.getByIdWithFlavor(id);
+        return Result.success(dishVO);
+    }
+
+    /**
+     * 修改菜品 此时无返回值 泛型不用写了 put更新 post新增
+     */
+
+    @PutMapping
+    @ApiOperation("修改菜品")
+    //请求体用@RequestBody @PathVariable路径参数
+    public Result update(@RequestBody DishDTO dishDTO){
+        log.info("修改菜品：{}", dishDTO);  //注意此处接收时是DTO 返回时是VO
+        dishService.updateWithFlavor(dishDTO);
+        return Result.success();
+    }
+
 }

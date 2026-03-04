@@ -110,4 +110,47 @@ public class DishServiceImpl implements DishService {
         dishFlavorMapper.deleteByDishIds(ids);
 
     }
+
+    /**
+     * 根据id查询菜品和对应的口味数据
+     * @param id
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        //分两步查 1.查询菜品数据 2.查询口味数据 将查询的数据封装到VO中
+        Dish dish = dishMapper.getById(id);
+
+        List<DishFlavor> dishFlavors= dishFlavorMapper.getByDishId(id);
+
+        //将查询的数据封装到VO
+        DishVO dishVO = new DishVO();
+        BeanUtils.copyProperties(dish,dishVO);
+        //此时categoryName不是必须 拷贝不过来也没关系
+        dishVO.setFlavors(dishFlavors); //dishFlavors（存储口味列表的内存地址）赋值给 dishVO 的属性。
+                                        //Jackson 的工具，执行 “序列化 (Serialization)” 操作。
+        return dishVO;
+    }
+
+    /**
+     * 根据id来修改菜品和口味数据
+     * @param dishDTO
+     */
+    @Override
+    public void updateWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO,dish);
+        //修改菜品表的基本信息
+        dishMapper.update(dish);
+        //删除原有的口味数据
+        dishFlavorMapper.deleteByDishId(dishDTO.getId());
+        //插入新的口味数据
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if(flavors!=null && flavors.size()>0){
+            flavors.forEach(dishFlavor -> dishFlavor.setDishId(dishDTO.getId()));
+            //此处口味需要与菜品进行关联 所以需要设置DishId
+            //这批新创建的口味对象，必须全部效忠于当前的这一个菜品 ID
+            dishFlavorMapper.insertBatch(flavors);
+        };
+    }
 }
