@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.SetmealDishMapper">
+
+
+   <!-- 指定要循环的 Java 集合名称。这里对应 Mapper 接口中传进来的参数名 dishIds
+    变量别名。在循环体内部，我们用 #{dishId} 来代表当前遍历到的那一个 ID 值。
+    separator="," close=")" open="(") 循环前加左括号 结束加右括号-->
+    <select id="getSetmealIdsByDishIds" resultType="java.lang.Long">
+        select setmeal_id from setmeal_dish where dish_id in
+        <foreach collection="dishIds" item="dishId" separator="," close=")" open="(">
+            #{dishId}
+        </foreach>
+
+    </select>
+</mapper>
