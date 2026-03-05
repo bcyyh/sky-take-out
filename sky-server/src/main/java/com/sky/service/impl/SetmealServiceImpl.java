@@ -2,10 +2,13 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
@@ -19,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -81,5 +86,67 @@ public class SetmealServiceImpl implements SetmealService {
         return new PageResult(page.getTotal(), page.getResult());
         //从 Page 对象这个“大包裹”里取出那行 private long total 的值。
         //把 Page 对象本身作为一个 List 传给 PageResult 的 records 字段。
+    }
+
+    /**
+     * 批量删除套餐
+     */
+    @Transactional
+    @Override
+    public void delete(List<Long> ids) {
+        //判断当前套餐是否可以删除 是否有起售的套餐
+        for (Long id : ids) {
+            Setmeal setmeal = setmealMapper.getById(id);
+            if (setmeal.getStatus() == StatusConstant.ENABLE) {
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+        }
+        //先删除关系表 再删除套餐 如果先删除主表 关系表就没有父亲了
+        setmealDishMapper.deleteBySetmealIds(ids);  //套餐菜品关系表
+        setmealMapper.deleteByIds(ids);   //套餐表
+
+    }
+
+    @Override
+    public SetmealVO getByIdWithDish(Long id) {
+
+        //分两步走
+
+        //此处getById(id)是将套餐表所有数据查询出来 赋值给套餐实体类
+        Setmeal setmeal = setmealMapper.getById(id);
+        //再把套餐关系表中的数据赋值给套餐菜品集合
+        List<SetmealDish> setmealDishes = setmealDishMapper.getBySetmealIds(id);
+
+        //此时创建VO对象 将获得到的两个对象拷贝给它
+        SetmealVO setmealVO = new SetmealVO();
+        BeanUtils.copyProperties(setmeal,setmealVO);
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;  //因为要返回给前端展示 所以用VO
+    }
+
+    /**
+     * 进行套餐的修改
+     * @param setmealDTO
+     */
+    @Override
+    public void update(SetmealDTO setmealDTO) {
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        //DTO 是给前端看的“门面”，而 Entity 是数据库认识的“身份证” 修改数据库故用实体类
+        log.info("修改套餐：{}", setmeal);
+        setmealMapper.update(setmeal);
+        //覆盖操作 先删除套餐和菜品的关联数据 再重新进行套餐和菜品关联数据的赋值
+        setmealDishMapper.deleteBySetmealIds(Arrays.asList(setmealDTO.getId()));
+        //先删除原先的所有数据
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        //从前端传来的“大包裹”（DTO）中，把用户最新选定的菜品数组提取出来。
+        if (setmealDishes != null && setmealDishes.size() > 0) {
+            // 关键一步：给每一个关联菜品设置它所属的套餐ID
+            setmealDishes.forEach(setmealDish -> {
+                setmealDish.setSetmealId(setmealDTO.getId());  //将前端传来的套餐ID赋给菜品
+            });
+            // 4. 批量插入到 setmeal_dish 关系表
+            setmealDishMapper.insertBatch(setmealDishes);
+        }
     }
 }

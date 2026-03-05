@@ -5,10 +5,13 @@ import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetmealService;
+import com.sky.vo.SetmealVO;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 套餐管理
@@ -46,5 +49,44 @@ public class SetmealController {
         log.info("分页查询：{}", setmealPageQueryDTO);
         PageResult pageResult = setmealService.pageQuery(setmealPageQueryDTO);
         return Result.success(pageResult);
+    }
+
+    /**
+     * 批量删除
+     */
+    @DeleteMapping
+    @ApiOperation("批量删除")
+    //没法空手套白狼地猜出 URL 里的 1,2,3 应该变成一个 List 还是一个普通的 String。
+    public Result delete(@RequestParam List<Long> ids){
+        //此时为批量删除故需将ID传入list集合中
+        log.info("批量删除：{}", ids);
+        setmealService.delete(ids);
+        return Result.success();
+    }
+
+    /**
+     * 根据ID查询套餐
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据ID查询套餐")
+    //此处ID有路径参数 传递故需要@PathVariable
+    public Result<SetmealVO> getById(@PathVariable Long id){
+        log.info("根据ID查询套餐：{}", id);
+        //此处返回给前端VO 因为需要返回菜品名称 DTO 是前端发给你的“请求包”，而 VO 是你发给前端的“展示包”
+        //在Service层中用套餐ID查询套餐信息
+        SetmealVO setmealVO = setmealService.getByIdWithDish(id);
+        return Result.success(setmealVO);
+    }
+
+    /**
+     * 修改套餐
+     */
+    @PutMapping
+    @ApiOperation("修改套餐")
+    //前端使用JSON数据传递 故用@RequestBody进行接收转换为DTO
+    public Result update(@RequestBody SetmealDTO setmealDTO){
+        log.info("修改套餐：{}", setmealDTO);
+        setmealService.update(setmealDTO);
+        return Result.success();
     }
 }

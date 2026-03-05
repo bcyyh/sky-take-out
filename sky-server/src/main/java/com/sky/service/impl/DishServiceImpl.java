@@ -90,7 +90,7 @@ public class DishServiceImpl implements DishService {
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
         }
-        //当前菜品是否被套餐关联了-- 存在关联的套餐
+        //当前菜品是否被套餐关联了-- 存在关联的套餐 传入当前菜品ID列表 故可以查询
         List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(ids);
         if(setmealIds!=null && setmealIds.size()>0){
             //即判断有没有袋子 袋子里有没有装东西
