@@ -177,11 +177,12 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public List<DishVO> list(Long categoryId) {
+        //此刻使用builder 模式 创建Dish对象并赋值
         Dish dish = Dish.builder()
                 .categoryId(categoryId)
-                .status(1) // 关键：只查询起售中的菜品
+                .status(StatusConstant.ENABLE) // 关键：只查询起售中的菜品
                 .build();
-
+        //此处为实体列赋值 传入Mapper 然后用实体类的参数进行查询 只查询起售中的菜品 故status=1
         return dishMapper.list(dish); // 传入封装好的对象
     }
 }

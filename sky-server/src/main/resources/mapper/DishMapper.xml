@@ -49,6 +49,7 @@
         </set>
     </update>
 
+<!--     此处用菜品id和分类id进行左链接 有dish表所有和分类表有category_id的匹配字段链接 select查出的东西-->
     <select id="list" resultType="com.sky.vo.DishVO">
         select d.*, c.name as category_name
         from dish d

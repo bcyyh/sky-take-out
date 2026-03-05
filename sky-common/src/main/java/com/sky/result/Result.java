@@ -22,7 +22,7 @@ public class Result<T> implements Serializable {
     }
 
     public static <T> Result<T> success(T object) {
-        Result<T> result = new Result<T>();
+        Result<T> result = new Result<T>();  //T为泛型 里面可能为菜品 也可能是集合
         result.data = object;
         result.code = 1;
         return result;

@@ -14,7 +14,7 @@
         </foreach>
 
     </select>
-
+<!--此处for each 可以一次插入多条数据 但只要一次插入操作-->
     <insert id="insertBatch">
         insert into setmeal_dish
         (name, setmeal_id, dish_id, price, copies)

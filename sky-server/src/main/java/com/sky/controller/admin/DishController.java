@@ -106,12 +106,16 @@ public class DishController {
     /**
      * 根据分类id查询菜品
      */
+
     @GetMapping("/list")
     @ApiOperation("根据分类id查询菜品")
     public Result<List<DishVO>> list(Long categoryId){
+        //既不是路径参数 也不是请求体参数 故此处用GetMapping
         log.info("根据分类id查询菜品：{}", categoryId);
         List<DishVO> list = dishService.list(categoryId);
+        //此时返回给前端的 故需要VO、非必须字段不要特异剔除
         return Result.success(list);
+        //Result大字段 包含 code msg data 泛型类型为 List<DishVO>
     }
 
 }
