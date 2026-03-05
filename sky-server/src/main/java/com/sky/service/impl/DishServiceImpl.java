@@ -160,7 +160,7 @@ public class DishServiceImpl implements DishService {
      * @param id
      */
 
-    // TODO 菜品和套餐进行捆绑 菜品停售 套餐要先下架 写完套餐后更新
+
     @Override
     public void startOrStop(Integer status, Long id) {
         Dish dish = Dish.builder()
@@ -168,6 +168,8 @@ public class DishServiceImpl implements DishService {
                 .status(status)
                 .build();
                 dishMapper.update(dish);
+
+
     }
 
     /**
