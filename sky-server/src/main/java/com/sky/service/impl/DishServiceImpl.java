@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -186,5 +187,26 @@ public class DishServiceImpl implements DishService {
                 .build();
         //此处为实体列赋值 传入Mapper 然后用实体类的参数进行查询 只查询起售中的菜品 故status=1
         return dishMapper.list(dish); // 传入封装好的对象
+    }
+
+    /**
+     * 条件查询菜品和口味
+     * @param dish
+     * @return
+     */
+    public List<DishVO> listWithFlavor(Dish dish) {
+        // 1. 直接用 List<DishVO> 接收，因为 Mapper XML 返回的就是 VO 类型
+        List<DishVO> dishVOList = dishMapper.list(dish);
+
+        // 2. 遍历已经查出的 VO 列表，补全每个菜品的口味信息
+        for (DishVO dishVO : dishVOList) {
+            // 根据菜品 id 查询对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(dishVO.getId());
+
+            // 封装口味数据
+            dishVO.setFlavors(flavors);
+        }
+
+        return dishVOList;
     }
 }

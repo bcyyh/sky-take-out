@@ -8,7 +8,15 @@ sky:
     password: 622848
 
   alioss:
-      endpoint: oss-cn-beijing.aliyuncs.com
-      access-key-id:
-      access-key-secret:
-      bucket-name: java-aiyyh
+    endpoint: oss-cn-beijing.aliyuncs.com
+    access-key-id:
+    access-key-secret:
+    bucket-name: java-aiyyh
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 10
+  wechat:
+    appid: wxc0c9a9ca4a02aa3b
+    secret: b4ec3bc991214c2b55b972c63eb72474
