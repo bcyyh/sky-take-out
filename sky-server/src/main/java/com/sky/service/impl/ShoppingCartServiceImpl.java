@@ -100,4 +100,32 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Long userId = BaseContext.getCurrentId();
         shoppingCartMapper.deleteByUserId(userId);
     }
+
+    /**
+     * 减
+     * @param shoppingCartDTO
+     */
+    @Override
+    public void sub(ShoppingCartDTO shoppingCartDTO) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        shoppingCart.setUserId(BaseContext.getCurrentId());
+
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+        //，DTO（Data Transfer Object） 是用来“传话”的，而 Entity（实体类） 是用来“干活”的。
+        // 1. 必须先判断 list 是否为空，确保能拿到数据
+        if (list != null && list.size() > 0) {
+            ShoppingCart cart = list.get(0); // 拿到当前购物车里的这行记录
+
+            // 2. 将后续逻辑移入 if 块内部，或者提前声明变量
+            if (cart.getNumber() == 1) {
+                // 如果数量只有 1 个，直接删掉这条记录
+                shoppingCartMapper.deleteById(cart.getId());
+            } else {
+                // 如果数量大于 1，减 1 并更新数据库
+                cart.setNumber(cart.getNumber() - 1);
+                shoppingCartMapper.updateNumberById(cart);
+            }
+        }
+    }
 }
