@@ -27,6 +27,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private DishMapper dishMapper;
     @Autowired
     private SetmealMapper setmealMapper;
+
+
     @Override
     public void add(ShoppingCartDTO shoppingCartDTO) {
         //判断当前加入购物车的商品是否已经存在了
@@ -71,5 +73,23 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         }
 
+
+
     }
+
+    /**
+     * 查看购物车
+     * @return
+     */
+    @Override
+    public List<ShoppingCart> showShoppingCart() {
+        //获取到当前用户的id
+        Long userId = BaseContext.getCurrentId();
+        ShoppingCart shoppingCart = ShoppingCart.builder()
+                .userId(userId)
+                .build();
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+         return list;
+    }
+
 }
