@@ -33,6 +33,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -173,7 +176,12 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
     }
 
-
+    /**
+     *
+     * 查询订单详情
+     * @param id
+     * @return
+     */
     @Override
     public OrderVO details(Long id) {
         // 根据id查询订单
@@ -206,13 +214,13 @@ public class OrderServiceImpl implements OrderService {
         //分页查询使用pagehelper
         PageHelper.startPage(pageNum, pageSize); //此工具需要传递页数和页大小
         //实体类是和数据库表一一对应的。但查询需求往往超出了表的范围。故一般用DTO进行查询
-        OrdersPageQueryDTO ordersPageQueryDTO = new OrdersPageQueryDTO();
-        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
-        ordersPageQueryDTO.setStatus(status);
-        // 分页条件查询
+        OrdersPageQueryDTO ordersPageQueryDTO = new OrdersPageQueryDTO(); //实体类适用于和数据库交互的
+        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId()); //此处从BaseContext中获取当前用户id
+        ordersPageQueryDTO.setStatus(status); //前端传来的状态
+        // 分页条件查询 查询出的数据赋值给实体类
         Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
         //此时查询出的数据都给了 Page对象 里面是订单数据
-
+        // 将page对象中的数据拷贝到OrderVO对象中 准备返回给前端机型展示
         List<OrderVO> list = new ArrayList();
 
         // 查询出订单明细，并封装入OrderVO进行响应
@@ -231,5 +239,74 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         return new PageResult(page.getTotal(), list);
+    }
+
+    /**
+     * 用户取消订单
+     * @param id
+     */
+    @Override
+    public void userCancelById(Long id) throws Exception {
+        // 根据id查询订单 查出来的 数据赋值给实体类
+        Orders ordersDB = orderMapper.getById(id);
+        // 校验订单是否存在
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 校验订单是否可取消
+        //订单状态 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        if (ordersDB.getStatus() > 2) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        Orders orders = new Orders();
+        orders.setId(ordersDB.getId());   //获取订单的id
+
+        // 订单处于待接单状态下取消，需要进行退款  因为不是企业 此时暂时 不要使用微信支付功能
+      /*  if (ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            //调用微信支付退款接口
+            weChatPayUtil.refund(
+                    ordersDB.getNumber(), //商户订单号
+                    ordersDB.getNumber(), //商户退款单号
+                    new BigDecimal(0.01),//退款金额，单位 元
+                    new BigDecimal(0.01));//原订单金额
+
+            //支付状态修改为 退款
+            orders.setPayStatus(Orders.REFUND);
+        }*/
+        //未接单 直接取消 修改状态
+        // 更新订单状态、取消原因、取消时间
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("用户取消");
+        orders.setCancelTime(LocalDateTime.now());
+        //修改数据库中的数据
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    @Override
+    public void repetition(Long id) {
+        // 查询当前用户的id
+        Long userId = BaseContext.getCurrentId();
+        // 根据订单id查询当前订单详情
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(id);
+        // 将订单详情对象转换为购物车对象
+        //此处的map是映射
+        List<ShoppingCart> shoppingCartList = orderDetailList.stream().map(x -> {
+            //新建一个购物车的对象
+            ShoppingCart shoppingCart = new ShoppingCart();
+
+            // 将原订单详情里面的菜品信息重新复制到购物车对象中
+            BeanUtils.copyProperties(x, shoppingCart, "id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+
+            return shoppingCart;
+        }).collect(Collectors.toList());
+
+        // 将购物车对象批量添加到数据库
+        shoppingCartMapper.insertBatch(shoppingCartList);
     }
 }

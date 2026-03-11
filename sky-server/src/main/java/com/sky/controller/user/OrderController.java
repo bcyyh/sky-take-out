@@ -61,7 +61,8 @@ public class OrderController {
         log.info("查询历史订单：{}", status);
         //将查询出的历史菜单进行返回 data下有total 和 records 所以用Pageresult返回
         PageResult pageResult = orderService.pageQuery4User(page, pageSize, status);
-        return Result.success(pageResult);
+        //需要返回数据 所以用PageResult
+        return Result.success(pageResult);  //total 和 records
     }
     /**
      * 查询订单详情
@@ -74,4 +75,30 @@ public class OrderController {
         OrderVO orderVO = orderService.details(id);
         return Result.success(orderVO);
     }
+
+    /**
+     * POST 往往用于创建一个新的资源（比如：下新订单）。
+     * PUT 用于修改已有的资源
+     * 取消订单
+     */
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("取消订单")
+    //路径参数 需要加@PathVariable
+    public Result cancel(@PathVariable("id") Long id) throws Exception {
+        log.info("取消订单，订单id为：{}", id);
+        orderService.userCancelById(id);
+        return Result.success();
+    }
+
+    /**
+     * 再来一单
+     */
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("再来一单")
+    public Result repetition(@PathVariable("id") Long id) {
+        log.info("再来一单，订单id为：{}", id);
+        orderService.repetition(id);
+        return Result.success();
+    }
+
 }
