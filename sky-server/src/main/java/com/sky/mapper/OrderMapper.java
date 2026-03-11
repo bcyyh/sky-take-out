@@ -55,4 +55,11 @@ public interface OrderMapper {
             "where number = #{orderNumber}")
     void updateStatus(Integer orderStatus, Integer orderPaidStatus, LocalDateTime check_out_time, String orderNumber);
 
+    /**
+     * 根据状态统计订单数量
+     * @param toBeConfirmed
+     * @return
+     */
+    @Select("select count(id) from orders where status = #{status}")
+    Integer countStatus(Integer toBeConfirmed);
 }
