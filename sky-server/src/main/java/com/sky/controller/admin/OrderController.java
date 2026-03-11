@@ -1,7 +1,9 @@
 package com.sky.controller.admin;
 
 
+import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.OrdersRejectionDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
@@ -10,10 +12,7 @@ import com.sky.vo.OrderVO;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController //身份声明 这个类是一个 Web 控制器，专门负责处理 HTTP 请求
 @RequestMapping("/admin/order")  //地址导航写在类上面（提取公共路径）
@@ -60,4 +59,28 @@ public class OrderController {
         OrderVO orderVO = orderService.details(id);
         return Result.success(orderVO);
     }
+
+    /**
+     * 接单
+     */
+    @PutMapping("/confirm")
+    @ApiOperation("接单")
+    //此处传递参数为JSON 用DTO接受
+    public Result confirm(@RequestBody OrdersConfirmDTO ordersConfirmDTO){
+        log.info("接单：{}", ordersConfirmDTO);
+        orderService.confirm(ordersConfirmDTO);
+        return Result.success();
+    }
+
+    /**
+     * 拒单
+     */
+    @PutMapping("/rejection")
+    @ApiOperation("拒单")
+    public Result rejection(@RequestBody OrdersRejectionDTO ordersRejectionDTO) throws Exception {
+        log.info("拒单：{}", ordersRejectionDTO);
+        orderService.rejection(ordersRejectionDTO);
+        return Result.success();
+    }
+
 }
