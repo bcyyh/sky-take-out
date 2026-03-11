@@ -1,9 +1,13 @@
 package com.sky.controller.user;
 
+import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -31,5 +35,43 @@ public class OrderController {
         log.info("用户下单：{}", ordersSubmitDTO);
         OrderSubmitVO orderSubmitVO = orderService.submit(ordersSubmitDTO);
         return Result.success(orderSubmitVO);
+    }
+    /**
+     * 订单支付
+     *
+     * @param ordersPaymentDTO
+     * @return
+     */
+    @PutMapping("/payment")
+    @ApiOperation("订单支付")
+    public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) throws Exception {
+        log.info("订单支付：{}", ordersPaymentDTO);
+        OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
+        log.info("生成预支付交易单：{}", orderPaymentVO);
+        return Result.success(orderPaymentVO);
+    }
+
+    /**
+     * 查询历史订单
+     */
+    @GetMapping("/historyOrders")
+    @ApiOperation("查询历史订单")
+    //Data中嵌套列表
+    public Result<PageResult> page(int page, int pageSize, Integer status) {
+        log.info("查询历史订单：{}", status);
+        //将查询出的历史菜单进行返回 data下有total 和 records 所以用Pageresult返回
+        PageResult pageResult = orderService.pageQuery4User(page, pageSize, status);
+        return Result.success(pageResult);
+    }
+    /**
+     * 查询订单详情
+     */
+    @GetMapping("/orderDetail/{id}") //路径参数要写完整、传递的参数需要进行绑定
+    @ApiOperation("查询订单详情")
+    public Result<Object> orderDetail(@PathVariable("id") Long id){
+        log.info("查询订单详情，订单id为：{}", id);
+        //Data中有数据 一般返回VO数据
+        OrderVO orderVO = orderService.details(id);
+        return Result.success(orderVO);
     }
 }
