@@ -37,13 +37,19 @@ sky:
   jwt:
     # 设置jwt签名加密时使用的秘钥
     admin-secret-key: itcast
-    # 设置jwt过期时间
     admin-ttl: 7200000000
-    # 设置前端传递过来的令牌名称
     admin-token-name: token
     user-secret-key: itheima
     user-ttl: 7200000000
     user-token-name: authentication
+
+    # --- 注意！shop 必须和上面的 jwt 对齐，前面只有 2 个空格 ---
+  shop:
+    address: "海南省海口市人民大道58号海南大学"
+
+    # --- baidu 也要和 jwt 对齐 ---
+  baidu:
+    ak: "WEZWb0IuXCG3XMfCI0Bsmq8d42pM9cvQ"
 alioss:
   endpoint: ${sky.alioss.endpoint}
   access-key-id: ${sky.alioss.access-key-id}
