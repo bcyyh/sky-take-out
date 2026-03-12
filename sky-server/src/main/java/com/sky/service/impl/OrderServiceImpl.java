@@ -192,11 +192,11 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(orders);
 
         //通过websocket向客户端浏览器推送消息 type orderId content
-        Map map = new HashMap();
+        Map map = new HashMap();  //装很多键值对的盒子
         map.put("type", 1);//1来单提醒 2客户催单
-        map.put("orderId", ordersDB.getId());
-        map.put("content", "订单号"+outTradeNo);
-        String json = JSON.toJSONString(map);
+        map.put("orderId", ordersDB.getId());  //往信封里塞内容 (put) 订单号
+        map.put("content", "订单号"+outTradeNo); //文字提示内容，
+        String json = JSON.toJSONString(map);  //把内容转换成“电报格式” (JSON)
         webSocketServer.sendToAllClient(json);
     }
 
@@ -560,5 +560,24 @@ public class OrderServiceImpl implements OrderService {
             //配送距离超过5000米
             throw new OrderBusinessException("超出配送范围");
         }
+    }
+
+    /**
+     * 订单催单
+     * @param id
+     */
+    @Override
+    public void reminder(Long id) {
+        Orders ordersDB = orderMapper.getById(id);
+        if (ordersDB == null ) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        HashMap map = new HashMap();
+        map.put("type",2);
+        map.put("orderId",id);
+        map.put("content","订单号："+ordersDB.getNumber());
+        String json = JSON.toJSONString(map);
+        //通过微博socket对客户端浏览器传递消息
+        webSocketServer.sendToAllClient( json);
     }
 }
